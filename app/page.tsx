@@ -4,6 +4,23 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
 
+const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
+  return (
+    <motion.span>
+      {text.split('').map((char, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.1, delay: delay + index * 0.1 }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
+
 const BackgroundBlobs = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <motion.div
@@ -32,6 +49,112 @@ const BackgroundBlobs = () => (
     />
   </div>
 );
+
+const SONG_LYRICS = [
+  "Помнишь войсы в дескорде",
+  "Шёпот, дрожь в твоём голосе",
+  "Звук, захода в канал",
+  "И тишина вдруг становится счастьем",
+  "Ночью мы связаны",
+  "Зелёный кружок — ты онлайн",
+  "«Ты тут?» — и сразу дыхание ближе",
+  "Как будто не сеть, а один вай-фай",
+  "Собрались будто лего мгновенно",
+  "В приватном канале вдвоём",
+  "И даже другие не мешали",
+  "Мы между словами живём",
+  "Только не спеши",
+  "В танцах две души",
+  "Я с хриплым голосом жду под твоим чатом",
+  "Хочешь — промолчи",
+  "Хочешь — убежим",
+  "Я даже в сети укрою тебя под своим зонтом",
+  "Капли лета на экране",
+  "Микрофон ловит каждый вздох",
+  "Ты смеёшься так осторожно",
+  "Будто кто-то услышит нас всерьёз",
+  "В каждом слове — чуть больше, чем просто",
+  "Между строками тёплый ток",
+  "И пока горит «typing…» рядом",
+  "Я читаю тебя между строк",
+  "Даже если мир тревожный",
+  "Ты мне пишешь: «ты ведь тоже…»",
+  "И становится всё несложно",
+  "Всё можно",
+  "Медленно плывёт время в звонках",
+  "Сквозь наушники — Сквозь сердце",
+  "Если вдруг пропадаешь на секунду",
+  "Я уже жду твой «reconnect» назад",
+  "Память сохранит голос твой в проводах",
+  "Как голосовое в архиве снов",
+  "Я включу его ночью снова",
+  "И услышу тебя без слов",
+  "Только не спеши",
+  "В танцах две души",
+  "Я с хриплым голосом жду под твоим чатом",
+  "Хочешь — промолчи",
+  "Хочешь — убежим",
+  "Пусть весь мир зависнет — мы не молчим",
+  "Капли лета на ладошке",
+  "Ты смеёшься так осторожно",
+  "В каждом слове — чуть больше, чем просто",
+  "Нам всё можно",
+  "Даже если всё тревожно",
+  "Эти чувства — невозможно",
+  "Но пока ты в онлайне рядом",
+  "Всё возможно",
+  "Нам всё можно",
+  "Пусть исчезнет всё позже",
+  "Но пока ты со мной в дескорде",
+  "Всё можно"
+];
+
+const KaraokeLyrics = () => {
+  const [lineIndex, setLineIndex] = useState(0);
+
+  useEffect(() => {
+    // wait for a bit initially then cycle every 4 seconds
+    const interval = setInterval(() => {
+      setLineIndex((prev) => (prev + 1) % SONG_LYRICS.length);
+    }, 4500); 
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 overflow-hidden">
+      <AnimatePresence mode="popLayout">
+        <motion.div
+           key={lineIndex}
+           initial={{ opacity: 0, scale: 0.95, filter: 'blur(5px)' }}
+           animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+           exit={{ opacity: 0, scale: 1.05, filter: 'blur(5px)' }}
+           transition={{ duration: 1.5, ease: 'easeInOut' }}
+           className="w-full px-4 sm:px-12 text-center opacity-100 sm:opacity-30 mix-blend-screen"
+        >
+          <motion.p className="text-xl sm:text-2xl md:text-3xl font-medium tracking-wide text-white drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]">
+            {SONG_LYRICS[lineIndex].split(/\s+/).map((word, wordIdx) => (
+              <span key={wordIdx} className="inline-block mr-2">
+                {word.split('').map((char, charIdx) => (
+                  <motion.span
+                    key={charIdx}
+                    initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
+                    animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.8)' }}
+                    transition={{ 
+                      duration: 0.1, 
+                      delay: wordIdx * 0.3 + charIdx * 0.05 // words appear seq, chars fast
+                    }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+              </span>
+            ))}
+          </motion.p>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const LiquidPlayer = ({ src }: { src: string }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -127,7 +250,7 @@ const LiquidPlayer = ({ src }: { src: string }) => {
       transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
       className="w-full flex justify-center"
     >
-      <div className="glass rounded-[30px] p-2 pr-6 w-[95%] max-w-[400px] flex gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10 items-center">
+      <div className="w-[95%] max-w-[400px] flex gap-3 items-center">
         <audio ref={audioRef} src={src} loop preload="metadata" />
 
         <button 
@@ -217,14 +340,17 @@ export default function PortfolioPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className="px-8 py-2 glass rounded-full flex items-center justify-center"
+          className="px-8 py-2/min-h-16 glass rounded-[30px] flex flex-col items-center justify-center p-3"
         >
-          <span className="text-2xl font-bold tracking-widest text-white">VIHT</span>
+          <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-white leading-none">VIHT</span>
+          <span className="text-[10px] mt-1 font-mono text-white/50 lowercase tracking-[0.15em]">
+            <TypewriterText text="by global" delay={1} />
+          </span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent mt-4" />
       </header>
 
-      <main className="relative z-10 flex flex-col items-center gap-8 flex-1 justify-center w-full">
+      <main className="relative z-10 flex flex-col items-center gap-8 flex-1 justify-center w-full min-h-[500px]">
         {/* Central image area */}
         <AnimatePresence>
           {photoUrl && (
@@ -232,24 +358,30 @@ export default function PortfolioPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.5, ease: 'easeOut' }}
-              className="flex items-center justify-center w-full my-8"
+              className="flex items-center justify-center w-full my-8 absolute inset-0 sm:relative"
             >
               <motion.div
                 animate={{ y: [-10, 10, -10] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-80 h-80 sm:w-96 sm:h-96 rounded-2xl glass levitate overflow-hidden flex items-center justify-center p-2"
+                className="w-80 h-80 sm:w-[500px] sm:h-[500px] flex items-center justify-center pointer-events-none relative opacity-40 sm:opacity-100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={photoUrl} 
                   alt="Main portfolio graphic" 
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover"
+                  style={{
+                    WebkitMaskImage: 'radial-gradient(circle at center, black 35%, transparent 70%)',
+                    maskImage: 'radial-gradient(circle at center, black 35%, transparent 70%)'
+                  }}
                   draggable={false}
                 />
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
+        
+        <KaraokeLyrics />
       </main>
 
       <footer className="relative z-10 w-full flex flex-col items-center gap-12 pb-12">
