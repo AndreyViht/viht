@@ -83,11 +83,6 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 glass-nav">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="logo-text">Viht</span>
-          <nav className="hidden md:flex gap-8">
-            {["VPN", "Безопасность", "О нас"].map((item) => (
-              <a key={item} href="#" className="nav-link">{item}</a>
-            ))}
-          </nav>
           <a href="#" className="btn-glass">Подключиться</a>
         </div>
       </header>
@@ -107,20 +102,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl w-full">
-          {[
-            { icon: "🔒", title: "Полная защита", desc: "VLESS + Reality — невидимый протокол" },
-            { icon: "⚡", title: "Без задержек", desc: "Серверы по всему миру" },
-            { icon: "🌐", title: "Любой трафик", desc: "Стриминг, игры, бизнес" },
-          ].map((card) => (
-            <div key={card.title} className="glass-card">
-              <span className="text-3xl mb-3 block">{card.icon}</span>
-              <h3 className="card-title">{card.title}</h3>
-              <p className="card-desc">{card.desc}</p>
-            </div>
-          ))}
-        </div>
+
       </section>
 
       {/* Music Player */}
