@@ -73,22 +73,22 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
            transition={{ duration: 1.5, ease: 'easeInOut' }}
            className="w-full px-4 sm:px-8 lg:px-0 text-center lg:text-left opacity-100 mix-blend-normal lg:mix-blend-normal"
         >
-          <div className="flex flex-col gap-2">
+           <div className="flex flex-col gap-2">
             {lines.map((line, lineIdx) => (
               <motion.p 
                 key={lineIdx} 
-                className="text-sm sm:text-base lg:text-lg font-medium tracking-wide text-white/50 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.05)]"
+                className="text-xs sm:text-sm lg:text-base font-medium tracking-wide text-white/50"
               >
                 {line.split(/\s+/).map((word, wordIdx) => (
-                  <span key={wordIdx} className="inline-block mr-2 lg:mr-2.5">
+                  <span key={wordIdx} className="inline-block mr-2">
                     {word.split('').map((char, charIdx) => (
                       <motion.span
                         key={charIdx}
-                        initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
-                        animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.5)' }}
+                        initial={{ opacity: 0.3 }}
+                        animate={{ opacity: 1 }}
                         transition={{ 
                           duration: 0.5, 
-                          delay: lineIdx * 1.0 + wordIdx * 0.25 + charIdx * 0.05 
+                          delay: lineIdx * 0.8 + wordIdx * 0.2 + charIdx * 0.05 
                         }}
                       >
                         {char}
@@ -217,7 +217,7 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
       <div className="w-[95%] max-w-[400px] flex gap-3 items-center">
         <audio ref={audioRef} src={src} loop preload="metadata" autoPlay />
 
-          <div className="flex-1 flex flex-col justify-center h-full relative cursor-pointer group">
+          <div className="flex-1 flex flex-col justify-center h-full relative cursor-pointer pt-2 pb-2 group">
             <input
               type="range"
               min="0"
@@ -227,23 +227,20 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             {/* Base track */}
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex items-center relative group-hover:h-2 transition-all">
+            <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden flex items-center relative transition-all">
               {/* Fill track */}
               <div 
                 className="h-full bg-white rounded-full relative" 
                 style={{ width: `${progress}%` }} 
-              >
-                {/* Thumb indicator (visible on hover or always if preferred, let's keep it clean) */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full opacity-0 shadow-[0_0_10px_2px_rgba(255,255,255,0.5)] group-hover:opacity-100 transition-opacity translate-x-1" />
-              </div>
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 ml-4 group">
-            <button onClick={toggleMute} className="flex items-center justify-center hover:text-white transition-colors active:scale-95 text-white/60">
+          <div className="flex items-center gap-2 shrink-0 ml-2 group">
+            <button onClick={toggleMute} className="flex items-center justify-center hover:text-white transition-colors active:scale-95 text-white/50">
               {isMuted || volume === 0 ? <VolumeX strokeWidth={2} className="w-4 h-4" /> : <Volume2 strokeWidth={2} className="w-4 h-4" />}
             </button>
-            <div className="h-1.5 w-16 bg-white/10 rounded-full flex items-center relative group-hover:h-2 transition-all hidden sm:block">
+            <div className="h-1 w-12 bg-white/20 rounded-full flex items-center relative transition-all hidden sm:block">
               <input
                  type="range"
                  min="0"
@@ -252,8 +249,8 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
                  value={isMuted ? 0 : volume}
                  onChange={handleVolumeChange}
                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-               />
-               <div 
+              />
+                <div 
                   className="h-full bg-white rounded-full pointer-events-none" 
                   style={{ width: `${isMuted ? 0 : volume * 100}%` }} 
                 />
@@ -298,15 +295,13 @@ export default function PortfolioPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className="px-8 py-3 glass rounded-[30px] flex items-center justify-center gap-3 mt-4"
+          className="px-10 py-3 glass rounded-[30px] flex items-center justify-center mt-4 border border-white/5 bg-[#111] shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
         >
-          <motion.span 
-            className="text-xl sm:text-2xl font-bold tracking-[0.2em] leading-none uppercase bg-gradient-to-r from-[#ff3366] via-[#7b33ff] to-[#33ccff] bg-[length:200%_auto] text-transparent bg-clip-text animate-gradient-x"
-          >
-            VIHT <span className="opacity-70 font-medium">| BLONDA</span>
-          </motion.span>
+          <span className="text-xl font-bold tracking-[0.25em] leading-none uppercase text-[#9966ff]">
+            VIHT
+          </span>
         </motion.div>
-        <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent mt-4" />
+        <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/10 to-transparent mt-4" />
       </header>
 
       <main className="relative z-10 flex flex-col w-full h-full items-center justify-center flex-1 mt-8 min-h-[500px] overflow-hidden">
