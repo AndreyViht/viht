@@ -2,55 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
-
-const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [loopNum, setLoopNum] = useState(0);
-  const typingSpeed = 150;
-  
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    let initialDelayTimer: NodeJS.Timeout;
-
-    if (delay && loopNum === 0 && displayText === '') {
-      initialDelayTimer = setTimeout(() => {
-        handleType();
-      }, delay * 1000);
-      return () => clearTimeout(initialDelayTimer);
-    }
-
-    const handleType = () => {
-      setDisplayText(
-        isDeleting 
-          ? text.substring(0, displayText.length - 1)
-          : text.substring(0, displayText.length + 1)
-      );
-
-      let speed = typingSpeed;
-      if (isDeleting) speed /= 2;
-
-      if (!isDeleting && displayText === text) {
-        speed = 2000;
-        setIsDeleting(true);
-      } else if (isDeleting && displayText === '') {
-        setIsDeleting(false);
-        setLoopNum(loopNum + 1);
-        speed = 500;
-      }
-
-      timer = setTimeout(handleType, speed);
-    };
-
-    timer = setTimeout(handleType, typingSpeed);
-    return () => clearTimeout(timer);
-  }, [displayText, isDeleting, loopNum, text, delay]);
-
-  return (
-    <span>{displayText}<span className="animate-pulse">|</span></span>
-  );
-};
+import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 
 const BackgroundBlobs = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -125,7 +77,7 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
             {lines.map((line, lineIdx) => (
               <motion.p 
                 key={lineIdx} 
-                className="text-lg sm:text-xl lg:text-2xl font-medium tracking-wide text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]"
+                className="text-lg sm:text-xl lg:text-2xl font-medium tracking-wide text-white/70 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]"
               >
                 {line.split(/\s+/).map((word, wordIdx) => (
                   <span key={wordIdx} className="inline-block mr-2 lg:mr-2.5">
@@ -135,8 +87,8 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
                         initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
                         animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.8)' }}
                         transition={{ 
-                          duration: 0.1, 
-                          delay: lineIdx * 0.5 + wordIdx * 0.1 + charIdx * 0.02 
+                          duration: 0.3, 
+                          delay: lineIdx * 0.8 + wordIdx * 0.2 + charIdx * 0.05 
                         }}
                       >
                         {char}
@@ -155,13 +107,26 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
 
 const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time: number) => void }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const playRef = useRef<number>(0);
+
+  useEffect(() => {
+    // Autoplay fallback (interaction required in many browsers)
+    const handleFirstInteraction = () => {
+      if (audioRef.current && audioRef.current.paused) {
+         audioRef.current.play().catch(() => setIsPlaying(false));
+         setIsPlaying(true);
+      }
+      document.removeEventListener('click', handleFirstInteraction);
+    };
+    document.addEventListener('click', handleFirstInteraction);
+    return () => document.removeEventListener('click', handleFirstInteraction);
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -247,17 +212,10 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
       initial={{ y: 50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
-      className="w-full flex justify-center"
+      className="w-full flex justify-center mt-6"
     >
       <div className="w-[95%] max-w-[400px] flex gap-3 items-center">
-        <audio ref={audioRef} src={src} loop preload="metadata" />
-
-        <button 
-            onClick={togglePlay}
-            className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 shrink-0 transition-transform shadow-lg"
-          >
-            {isPlaying ? <Pause fill="currentColor" stroke="none" className="w-5 h-5" /> : <Play fill="currentColor" stroke="none" className="w-5 h-5 pl-1" />}
-          </button>
+        <audio ref={audioRef} src={src} loop preload="metadata" autoPlay />
 
           <div className="flex-1 flex flex-col justify-center h-full relative cursor-pointer group">
             <input
@@ -340,11 +298,10 @@ export default function PortfolioPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className="px-8 py-3 glass rounded-[30px] flex items-center justify-center gap-3"
+          className="px-8 py-3 glass rounded-[30px] flex items-center justify-center gap-3 mt-4"
         >
-          <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-white leading-none">VIHT</span>
-          <span className="text-sm font-mono text-white/50 tracking-[0.1em] lowercase w-[100px] text-left">
-            <TypewriterText text="by global" delay={1} />
+          <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-white leading-none uppercase">
+            VIHT <span className="opacity-50 font-normal">| Blonda</span>
           </span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent mt-4" />
