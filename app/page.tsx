@@ -77,7 +77,7 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
             {lines.map((line, lineIdx) => (
               <motion.p 
                 key={lineIdx} 
-                className="text-lg sm:text-xl lg:text-2xl font-medium tracking-wide text-white/70 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]"
+                className="text-sm sm:text-base lg:text-lg font-medium tracking-wide text-white/50 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.05)]"
               >
                 {line.split(/\s+/).map((word, wordIdx) => (
                   <span key={wordIdx} className="inline-block mr-2 lg:mr-2.5">
@@ -85,10 +85,10 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
                       <motion.span
                         key={charIdx}
                         initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
-                        animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.8)' }}
+                        animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.5)' }}
                         transition={{ 
-                          duration: 0.3, 
-                          delay: lineIdx * 0.8 + wordIdx * 0.2 + charIdx * 0.05 
+                          duration: 0.5, 
+                          delay: lineIdx * 1.0 + wordIdx * 0.25 + charIdx * 0.05 
                         }}
                       >
                         {char}
@@ -300,16 +300,18 @@ export default function PortfolioPage() {
           transition={{ duration: 1, ease: 'easeOut' }}
           className="px-8 py-3 glass rounded-[30px] flex items-center justify-center gap-3 mt-4"
         >
-          <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-white leading-none uppercase">
-            VIHT <span className="opacity-50 font-normal">| Blonda</span>
-          </span>
+          <motion.span 
+            className="text-xl sm:text-2xl font-bold tracking-[0.2em] leading-none uppercase bg-gradient-to-r from-[#ff3366] via-[#7b33ff] to-[#33ccff] bg-[length:200%_auto] text-transparent bg-clip-text animate-gradient-x"
+          >
+            VIHT <span className="opacity-70 font-medium">| BLONDA</span>
+          </motion.span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent mt-4" />
       </header>
 
-      <main className="relative z-10 flex flex-col lg:flex-row w-full max-w-6xl mx-auto gap-8 items-center lg:items-center justify-center flex-1 mt-8 min-h-[500px]">
-        {/* Left: Image and Mobile Lyrics Container */}
-        <div className="flex flex-col items-center gap-8 w-full lg:w-1/2 relative">
+      <main className="relative z-10 flex flex-col w-full h-full items-center justify-center flex-1 mt-8 min-h-[500px] overflow-hidden">
+        {/* Center: Image and Player */}
+        <div className="flex flex-col items-center gap-8 w-full relative z-20">
           <AnimatePresence>
             {photoUrl && (
               <motion.div
@@ -341,8 +343,8 @@ export default function PortfolioPage() {
           </AnimatePresence>
         </div>
 
-        {/* Right Desktop Lyrics Container */}
-        <div className="hidden lg:flex flex-col w-full lg:w-1/2 min-h-[400px] justify-center text-left items-start px-8">
+        {/* Right Desktop Lyrics Container - Absolute so it doesn't push the center block */}
+        <div className="hidden lg:flex flex-col absolute right-0 top-1/2 -translate-y-1/2 w-[350px] pr-8 xl:pr-16 z-20">
            <KaraokeLyrics currentTime={currentAudioTime} />
         </div>
       </main>
