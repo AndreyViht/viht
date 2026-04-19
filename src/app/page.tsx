@@ -12,10 +12,12 @@ export default function Home() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const savedPhoto = localStorage.getItem("viht_photo");
-    const savedMusic = localStorage.getItem("viht_music");
-    if (savedPhoto) setPhoto(savedPhoto);
-    if (savedMusic) setMusic(savedMusic);
+    fetch("/api/content")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.photo) setPhoto(data.photo);
+        if (data.music) setMusic(data.music);
+      });
   }, []);
 
   useEffect(() => {
