@@ -34,6 +34,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchContent();
     }
   }, [isAuthenticated]);
@@ -126,6 +127,7 @@ export default function AdminPage() {
               <span className="flex items-center text-green-400 text-sm mb-4">
                 <CheckCircle className="w-4 h-4 mr-2" /> Загружено
               </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={photoBlobUrl} alt="Current" className="w-24 h-24 object-cover rounded-xl mb-4 border border-white/20" />
             </div>
           ) : (

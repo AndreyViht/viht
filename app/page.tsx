@@ -120,13 +120,6 @@ const LiquidPlayer = ({ src }: { src: string }) => {
     if (newVol > 0) setIsMuted(false);
   };
 
-  const formatTime = (time: number) => {
-    if (!time || isNaN(time)) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-
   return (
     <motion.div
       initial={{ y: 50, opacity: 0 }}
@@ -134,43 +127,43 @@ const LiquidPlayer = ({ src }: { src: string }) => {
       transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
       className="w-full flex justify-center"
     >
-      <div className="glass rounded-2xl p-4 w-[90%] max-w-[500px] flex flex-col gap-3 shadow-2xl">
+      <div className="glass rounded-[30px] p-2 pr-6 w-[95%] max-w-[400px] flex gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10 items-center">
         <audio ref={audioRef} src={src} loop preload="metadata" />
 
-        <div className="flex items-center gap-4 px-2">
-          <button 
+        <button 
             onClick={togglePlay}
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 shrink-0 transition-transform"
+            className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 shrink-0 transition-transform shadow-lg"
           >
             {isPlaying ? <Pause fill="currentColor" stroke="none" className="w-5 h-5" /> : <Play fill="currentColor" stroke="none" className="w-5 h-5 pl-1" />}
           </button>
 
-          <div className="flex-1 flex flex-col gap-1 mt-1">
-            <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider opacity-60 text-white">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex items-center relative">
-               <input
-                type="range"
-                min="0"
-                max="100"
-                value={progress || 0}
-                onChange={handleProgressChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
+          <div className="flex-1 flex flex-col justify-center h-full relative cursor-pointer group">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={progress || 0}
+              onChange={handleProgressChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            {/* Base track */}
+            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex items-center relative group-hover:h-2 transition-all">
+              {/* Fill track */}
               <div 
-                className="h-full bg-white rounded-full pointer-events-none" 
+                className="h-full bg-white rounded-full relative" 
                 style={{ width: `${progress}%` }} 
-              />
+              >
+                {/* Thumb indicator (visible on hover or always if preferred, let's keep it clean) */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full opacity-0 shadow-[0_0_10px_2px_rgba(255,255,255,0.5)] group-hover:opacity-100 transition-opacity translate-x-1" />
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 ml-2">
-            <button onClick={toggleMute} className="flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95 text-white/40">
-              {isMuted || volume === 0 ? <VolumeX strokeWidth={2} className="w-3.5 h-3.5" /> : <Volume2 strokeWidth={2} className="w-3.5 h-3.5" />}
+          <div className="flex items-center gap-2 shrink-0 ml-4 group">
+            <button onClick={toggleMute} className="flex items-center justify-center hover:text-white transition-colors active:scale-95 text-white/60">
+              {isMuted || volume === 0 ? <VolumeX strokeWidth={2} className="w-4 h-4" /> : <Volume2 strokeWidth={2} className="w-4 h-4" />}
             </button>
-            <div className="h-1 w-16 bg-white/20 rounded-full flex items-center relative hidden sm:block">
+            <div className="h-1.5 w-16 bg-white/10 rounded-full flex items-center relative group-hover:h-2 transition-all hidden sm:block">
               <input
                  type="range"
                  min="0"
@@ -186,7 +179,6 @@ const LiquidPlayer = ({ src }: { src: string }) => {
                 />
             </div>
           </div>
-        </div>
       </div>
     </motion.div>
   );
@@ -247,6 +239,7 @@ export default function PortfolioPage() {
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
                 className="w-80 h-80 sm:w-96 sm:h-96 rounded-2xl glass levitate overflow-hidden flex items-center justify-center p-2"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={photoUrl} 
                   alt="Main portfolio graphic" 
@@ -259,16 +252,11 @@ export default function PortfolioPage() {
         </AnimatePresence>
       </main>
 
-      <footer className="relative z-10 w-full flex flex-col items-center gap-12 pb-4">
+      <footer className="relative z-10 w-full flex flex-col items-center gap-12 pb-12">
         <AnimatePresence>
           {musicUrl && <LiquidPlayer src={musicUrl} />}
         </AnimatePresence>
-        <a href="/advihtminui" className="text-[10px] uppercase tracking-widest opacity-20 hover:opacity-100 transition-opacity text-white">Protected Access</a>
       </footer>
-
-      <div className="absolute top-6 right-8 z-20 flex gap-2">
-        <a href="/advihtminui" className="px-3 py-1.5 glass rounded-lg text-[9px] font-bold uppercase text-white/50 border-white/5 hover:text-white transition-colors">Admin Panel</a>
-      </div>
     </div>
   );
 }
