@@ -124,7 +124,7 @@ export default function Home() {
         .hero { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 80px 24px 100px; }
         .photo-wrap { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(124,58,237,0.2); animation: floatup 6s ease-in-out infinite; }
         @keyframes floatup { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-        .photo { display: block; max-width: min(700px, 90vw); max-height: 70vh; object-fit: cover; }
+        .photo { display: block; max-width: min(480px, 80vw); max-height: 55vh; object-fit: cover; }
         .photo-shine { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.3) 100%); pointer-events: none; }
         .player { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; padding: 12px 22px; border-radius: 60px; background: rgba(10,10,20,0.7); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); white-space: nowrap; }
         .play-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; background: linear-gradient(135deg, #7c3aed, #3b82f6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 20px rgba(124,58,237,0.5); transition: transform 0.15s, box-shadow 0.15s; }
