@@ -5,19 +5,50 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
 
 const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+  const typingSpeed = 150;
+  
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    let initialDelayTimer: NodeJS.Timeout;
+
+    if (delay && loopNum === 0 && displayText === '') {
+      initialDelayTimer = setTimeout(() => {
+        handleType();
+      }, delay * 1000);
+      return () => clearTimeout(initialDelayTimer);
+    }
+
+    const handleType = () => {
+      setDisplayText(
+        isDeleting 
+          ? text.substring(0, displayText.length - 1)
+          : text.substring(0, displayText.length + 1)
+      );
+
+      let speed = typingSpeed;
+      if (isDeleting) speed /= 2;
+
+      if (!isDeleting && displayText === text) {
+        speed = 2000;
+        setIsDeleting(true);
+      } else if (isDeleting && displayText === '') {
+        setIsDeleting(false);
+        setLoopNum(loopNum + 1);
+        speed = 500;
+      }
+
+      timer = setTimeout(handleType, speed);
+    };
+
+    timer = setTimeout(handleType, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, loopNum, text, delay]);
+
   return (
-    <motion.span>
-      {text.split('').map((char, index) => (
-        <motion.span
-          key={index}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.1, delay: delay + index * 0.1 }}
-        >
-          {char}
-        </motion.span>
-      ))}
-    </motion.span>
+    <span>{displayText}<span className="animate-pulse">|</span></span>
   );
 };
 
@@ -50,113 +81,79 @@ const BackgroundBlobs = () => (
   </div>
 );
 
-const SONG_LYRICS = [
-  "Помнишь войсы в дескорде",
-  "Шёпот, дрожь в твоём голосе",
-  "Звук, захода в канал",
-  "И тишина вдруг становится счастьем",
-  "Ночью мы связаны",
-  "Зелёный кружок — ты онлайн",
-  "«Ты тут?» — и сразу дыхание ближе",
-  "Как будто не сеть, а один вай-фай",
-  "Собрались будто лего мгновенно",
-  "В приватном канале вдвоём",
-  "И даже другие не мешали",
-  "Мы между словами живём",
-  "Только не спеши",
-  "В танцах две души",
-  "Я с хриплым голосом жду под твоим чатом",
-  "Хочешь — промолчи",
-  "Хочешь — убежим",
-  "Я даже в сети укрою тебя под своим зонтом",
-  "Капли лета на экране",
-  "Микрофон ловит каждый вздох",
-  "Ты смеёшься так осторожно",
-  "Будто кто-то услышит нас всерьёз",
-  "В каждом слове — чуть больше, чем просто",
-  "Между строками тёплый ток",
-  "И пока горит «typing…» рядом",
-  "Я читаю тебя между строк",
-  "Даже если мир тревожный",
-  "Ты мне пишешь: «ты ведь тоже…»",
-  "И становится всё несложно",
-  "Всё можно",
-  "Медленно плывёт время в звонках",
-  "Сквозь наушники — Сквозь сердце",
-  "Если вдруг пропадаешь на секунду",
-  "Я уже жду твой «reconnect» назад",
-  "Память сохранит голос твой в проводах",
-  "Как голосовое в архиве снов",
-  "Я включу его ночью снова",
-  "И услышу тебя без слов",
-  "Только не спеши",
-  "В танцах две души",
-  "Я с хриплым голосом жду под твоим чатом",
-  "Хочешь — промолчи",
-  "Хочешь — убежим",
-  "Пусть весь мир зависнет — мы не молчим",
-  "Капли лета на ладошке",
-  "Ты смеёшься так осторожно",
-  "В каждом слове — чуть больше, чем просто",
-  "Нам всё можно",
-  "Даже если всё тревожно",
-  "Эти чувства — невозможно",
-  "Но пока ты в онлайне рядом",
-  "Всё возможно",
-  "Нам всё можно",
-  "Пусть исчезнет всё позже",
-  "Но пока ты со мной в дескорде",
-  "Всё можно"
+const SYNCED_LYRICS = [
+  { time: 0, text: "" },
+  { time: 14, text: "Помнишь войсы в дескорде\nШёпот, дрожь в твоём голосе\nЗвук, захода в канал\nИ тишина вдруг становится счастьем\nНочью мы связаны\nЗелёный кружок — ты онлайн" },
+  { time: 40, text: "«Ты тут?» — и сразу дыхание ближе\nКак будто не сеть, а один вай-фай\nСобрались будто лего мгновенно\nВ приватном канале вдвоём\nИ даже другие не мешали" },
+  { time: 68, text: "Мы между словами живём\nТолько не спеши\nВ танцах две души\nЯ с хриплым голосом жду под твоим чатом\nХочешь — промолчи\nХочешь — убежим\nЯ даже в сети укрою тебя под своим зонтом\nКапли лета на экране\nМикрофон ловит каждый вздох\nТы смеёшься так осторожно\nБудто кто-то услышит нас всерьёз" },
+  { time: 106, text: "В каждом слове — чуть больше, чем просто\nМежду строками тёплый ток\nИ пока горит «typing…» рядом\nЯ читаю тебя между строк\nДаже если мир тревожный\nТы мне пишешь: «ты ведь тоже…»\nИ становится всё несложно\nВсё можно" },
+  { time: 128, text: "Медленно плывёт время в звонках\nСквозь наушники — Сквозь сердце\nЕсли вдруг пропадаешь на секунду\nЯ уже жду твой «reconnect» назад\nПамять сохранит голос твой в проводах\nКак голосовое в архиве снов\nЯ включу его ночью снова\nИ услышу тебя без слов\nТолько не спеши\nВ танцах две души" },
+  { time: 159, text: "Я с хриплым голосом жду под твоим чатом\nХочешь — промолчи\nХочешь — убежим\nПусть весь мир зависнет — мы не молчим\nКапли лета на ладошке\nТы смеёшься так осторожно" },
+  { time: 188, text: "В каждом слове — чуть больше, чем просто\nНам всё можно\nДаже если всё тревожно\nЭти чувства — невозможно\nНо пока ты в онлайне рядом\nВсё возможно\nНам всё можно" },
+  { time: 226, text: "Пусть исчезнет всё позже\nНо пока ты со мной в дескорде\nВсё можно" }
 ];
 
-const KaraokeLyrics = () => {
-  const [lineIndex, setLineIndex] = useState(0);
+const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
+  // Find the current lyric block based on time
+  let activeIndex = 0;
+  for (let i = 0; i < SYNCED_LYRICS.length; i++) {
+    if (currentTime >= SYNCED_LYRICS[i].time) {
+      activeIndex = i;
+    } else {
+      break;
+    }
+  }
 
-  useEffect(() => {
-    // wait for a bit initially then cycle every 4 seconds
-    const interval = setInterval(() => {
-      setLineIndex((prev) => (prev + 1) % SONG_LYRICS.length);
-    }, 4500); 
-    return () => clearInterval(interval);
-  }, []);
+  const activeText = SYNCED_LYRICS[activeIndex]?.text || "";
+
+  if (!activeText) return null;
+
+  const lines = activeText.split('\n');
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 overflow-hidden">
+    <div className="absolute inset-0 lg:relative lg:inset-auto flex items-center justify-center pointer-events-none z-30 overflow-hidden lg:overflow-visible w-full h-full lg:min-h-[400px]">
       <AnimatePresence mode="popLayout">
         <motion.div
-           key={lineIndex}
-           initial={{ opacity: 0, scale: 0.95, filter: 'blur(5px)' }}
-           animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-           exit={{ opacity: 0, scale: 1.05, filter: 'blur(5px)' }}
+           key={activeIndex}
+           initial={{ opacity: 0, y: 20, filter: 'blur(5px)' }}
+           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+           exit={{ opacity: 0, y: -20, filter: 'blur(5px)' }}
            transition={{ duration: 1.5, ease: 'easeInOut' }}
-           className="w-full px-4 sm:px-12 text-center opacity-100 sm:opacity-30 mix-blend-screen"
+           className="w-full px-4 sm:px-8 lg:px-0 text-center lg:text-left opacity-100 mix-blend-normal lg:mix-blend-normal"
         >
-          <motion.p className="text-xl sm:text-2xl md:text-3xl font-medium tracking-wide text-white drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]">
-            {SONG_LYRICS[lineIndex].split(/\s+/).map((word, wordIdx) => (
-              <span key={wordIdx} className="inline-block mr-2">
-                {word.split('').map((char, charIdx) => (
-                  <motion.span
-                    key={charIdx}
-                    initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
-                    animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.8)' }}
-                    transition={{ 
-                      duration: 0.1, 
-                      delay: wordIdx * 0.3 + charIdx * 0.05 // words appear seq, chars fast
-                    }}
-                  >
-                    {char}
-                  </motion.span>
+          <div className="flex flex-col gap-2">
+            {lines.map((line, lineIdx) => (
+              <motion.p 
+                key={lineIdx} 
+                className="text-lg sm:text-xl lg:text-2xl font-medium tracking-wide text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] lg:drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]"
+              >
+                {line.split(/\s+/).map((word, wordIdx) => (
+                  <span key={wordIdx} className="inline-block mr-2 lg:mr-2.5">
+                    {word.split('').map((char, charIdx) => (
+                      <motion.span
+                        key={charIdx}
+                        initial={{ opacity: 0.2, textShadow: '0 0 0px rgba(255,255,255,0)' }}
+                        animate={{ opacity: 1, textShadow: '0 0 10px rgba(255,255,255,0.8)' }}
+                        transition={{ 
+                          duration: 0.1, 
+                          delay: lineIdx * 0.5 + wordIdx * 0.1 + charIdx * 0.02 
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </span>
                 ))}
-              </span>
+              </motion.p>
             ))}
-          </motion.p>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
   );
 };
 
-const LiquidPlayer = ({ src }: { src: string }) => {
+const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time: number) => void }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -178,6 +175,7 @@ const LiquidPlayer = ({ src }: { src: string }) => {
     const updateProgress = () => {
       setCurrentTime(audio.currentTime);
       setProgress((audio.currentTime / audio.duration) * 100);
+      onTimeUpdate?.(audio.currentTime);
       if (isPlaying) {
         playRef.current = requestAnimationFrame(updateProgress);
       }
@@ -197,7 +195,7 @@ const LiquidPlayer = ({ src }: { src: string }) => {
       audio.removeEventListener('loadedmetadata', setAudioData);
       if (playRef.current) cancelAnimationFrame(playRef.current);
     };
-  }, [isPlaying, src, volume]); // added volume to deps
+  }, [isPlaying, src, volume, onTimeUpdate]); // added volume to deps
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -207,10 +205,11 @@ const LiquidPlayer = ({ src }: { src: string }) => {
         setCurrentTime(audio.currentTime);
         setProgress((audio.currentTime / audio.duration) * 100);
       }
+      onTimeUpdate?.(audio.currentTime);
     }
     audio.addEventListener('timeupdate', handleTimeUpdate);
     return () => audio.removeEventListener('timeupdate', handleTimeUpdate);
-  }, [isPlaying]);
+  }, [isPlaying, onTimeUpdate]);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
 
@@ -311,6 +310,7 @@ export default function PortfolioPage() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
 
   useEffect(() => {
     fetch('/api/content')
@@ -340,55 +340,55 @@ export default function PortfolioPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className="px-8 py-2/min-h-16 glass rounded-[30px] flex flex-col items-center justify-center p-3"
+          className="px-8 py-3 glass rounded-[30px] flex items-center justify-center gap-3"
         >
           <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-white leading-none">VIHT</span>
-          <span className="text-[10px] mt-1 font-mono text-white/50 lowercase tracking-[0.15em]">
+          <span className="text-sm font-mono text-white/50 tracking-[0.1em] lowercase w-[100px] text-left">
             <TypewriterText text="by global" delay={1} />
           </span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent mt-4" />
       </header>
 
-      <main className="relative z-10 flex flex-col items-center gap-8 flex-1 justify-center w-full min-h-[500px]">
-        {/* Central image area */}
-        <AnimatePresence>
-          {photoUrl && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, ease: 'easeOut' }}
-              className="flex items-center justify-center w-full my-8 absolute inset-0 sm:relative"
-            >
+      <main className="relative z-10 flex flex-col lg:flex-row w-full max-w-6xl mx-auto gap-8 items-center lg:items-center justify-center flex-1 mt-8 min-h-[500px]">
+        {/* Left: Image and Mobile Lyrics Container */}
+        <div className="flex flex-col items-center gap-8 w-full lg:w-1/2 relative">
+          <AnimatePresence>
+            {photoUrl && (
               <motion.div
-                animate={{ y: [-10, 10, -10] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-80 h-80 sm:w-[500px] sm:h-[500px] flex items-center justify-center pointer-events-none relative opacity-40 sm:opacity-100"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
+                className="relative flex items-center justify-center w-full"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={photoUrl} 
-                  alt="Main portfolio graphic" 
-                  className="w-full h-full object-cover"
-                  style={{
-                    WebkitMaskImage: 'radial-gradient(circle at center, black 35%, transparent 70%)',
-                    maskImage: 'radial-gradient(circle at center, black 35%, transparent 70%)'
-                  }}
-                  draggable={false}
-                />
+                <div className="w-80 h-80 sm:w-[400px] sm:h-[400px] rounded-2xl overflow-hidden glass shadow-2xl relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={photoUrl} 
+                    alt="Main portfolio graphic" 
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                  
+                  {/* Mobile Lyrics Overlay - ABSOLUTE INSIDE IMAGE Container */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center lg:hidden bg-black/40 p-4">
+                     <KaraokeLyrics currentTime={currentAudioTime} />
+                  </div>
+                </div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        <KaraokeLyrics />
-      </main>
+            )}
+          </AnimatePresence>
+          
+          <AnimatePresence>
+            {musicUrl && <LiquidPlayer src={musicUrl} onTimeUpdate={setCurrentAudioTime} />}
+          </AnimatePresence>
+        </div>
 
-      <footer className="relative z-10 w-full flex flex-col items-center gap-12 pb-12">
-        <AnimatePresence>
-          {musicUrl && <LiquidPlayer src={musicUrl} />}
-        </AnimatePresence>
-      </footer>
+        {/* Right Desktop Lyrics Container */}
+        <div className="hidden lg:flex flex-col w-full lg:w-1/2 min-h-[400px] justify-center text-left items-start px-8">
+           <KaraokeLyrics currentTime={currentAudioTime} />
+        </div>
+      </main>
     </div>
   );
 }
