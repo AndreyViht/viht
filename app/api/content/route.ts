@@ -13,9 +13,22 @@ export async function GET() {
       .filter((b) => b.pathname.startsWith('music-'))
       .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
 
+    const configBlob = blobs
+      .filter((b) => b.pathname.startsWith('config-'))
+      .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+      
+    let config = null;
+    if (configBlob) {
+      const res = await fetch(configBlob.url);
+      if (res.ok) {
+        config = await res.json();
+      }
+    }
+
     return NextResponse.json({
       photoUrl: photoBlob?.url || null,
       musicUrl: musicBlob?.url || null,
+      config: config || null,
     });
   } catch (error) {
     console.error('Failed to fetch content:', error);

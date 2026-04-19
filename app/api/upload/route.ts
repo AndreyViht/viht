@@ -4,25 +4,30 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
-    const file = form.get('file') as File | null;
+    const file = form.get('file') as File | Blob | null;
     const type = form.get('type') as string | null;
 
     if (!file || !type) {
       return NextResponse.json({ error: 'Missing file or type' }, { status: 400 });
     }
 
-    if (type !== 'photo' && type !== 'music') {
+    if (type !== 'photo' && type !== 'music' && type !== 'config') {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
 
-    // Delete existing files of the same type to clear space (important for 1GB quota limit)
+    // Delete existing files of the same type to clear space
     const { blobs } = await list({ prefix: `${type}-` });
     for (const blob of blobs) {
       await del(blob.url);
     }
 
     // Generate new filename and upload
-    const extension = file.name.split('.').pop() || 'tmp';
+    let extension = 'tmp';
+    if (type === 'config') {
+      extension = 'json';
+    } else if (file instanceof File) {
+      extension = file.name.split('.').pop() || 'tmp';
+    }
     const timestamp = Date.now();
     const newFilename = `${type}-${timestamp}.${extension}`;
 

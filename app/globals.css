@@ -24,8 +24,18 @@
         background-position: 0% 50%;
     }
   }
+  
+  @keyframes levitate {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 
   .animate-gradient-x {
     animation: gradient-x 6s ease infinite;
+    background-size: 200% auto;
   }
 }

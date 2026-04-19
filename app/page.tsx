@@ -4,34 +4,56 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 
-const BackgroundBlobs = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <motion.div
-      animate={{
-        x: ['-20px', '20px', '-10px', '-20px'],
-        y: ['-10px', '20px', '40px', '-10px'],
-      }}
-      transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-      className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#8b5cf6] top-[-100px] left-[-100px]"
-    />
-    <motion.div
-      animate={{
-        x: ['20px', '-20px', '10px', '20px'],
-        y: ['20px', '-10px', '30px', '20px'],
-      }}
-      transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
-      className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#3b82f6] bottom-[-150px] right-[-100px]"
-    />
-    <motion.div
-      animate={{
-        x: ['-10px', '30px', '-20px', '-10px'],
-        y: ['40px', '10px', '-10px', '40px'],
-      }}
-      transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut' }}
-      className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#ec4899] top-[200px] left-[300px]"
-    />
-  </div>
-);
+const BackgroundBlobs = ({ effect }: { effect?: string }) => {
+  if (effect === 'none') {
+    return null;
+  }
+
+  if (effect === 'pulse') {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.4, 0.1],
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="w-[800px] h-[800px] rounded-full blur-[100px] bg-[#ff3366]"
+        />
+      </div>
+    );
+  }
+
+  // default 'blobs'
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <motion.div
+        animate={{
+          x: ['-20px', '20px', '-10px', '-20px'],
+          y: ['-10px', '20px', '40px', '-10px'],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#8b5cf6] top-[-100px] left-[-100px]"
+      />
+      <motion.div
+        animate={{
+          x: ['20px', '-20px', '10px', '20px'],
+          y: ['20px', '-10px', '30px', '20px'],
+        }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#3b82f6] bottom-[-150px] right-[-100px]"
+      />
+      <motion.div
+        animate={{
+          x: ['-10px', '30px', '-20px', '-10px'],
+          y: ['40px', '10px', '-10px', '40px'],
+        }}
+        transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-40 bg-[#ec4899] top-[200px] left-[300px]"
+      />
+    </div>
+  );
+};
 
 const SYNCED_LYRICS = [
   { time: 0, text: "" },
@@ -109,18 +131,18 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
             {lines.map((line, lineIdx) => (
               <motion.p 
                 key={lineIdx} 
-                className="text-xs sm:text-sm lg:text-base font-medium tracking-wide text-white/50"
+                className="text-xs sm:text-sm lg:text-base font-medium tracking-wide text-white/30"
               >
                 {line.split(/\s+/).map((word, wordIdx) => (
                   <span key={wordIdx} className="inline-block mr-2">
                     {word.split('').map((char, charIdx) => (
                       <motion.span
                         key={charIdx}
-                        initial={{ opacity: 0.3 }}
+                        initial={{ opacity: 0.2 }}
                         animate={{ opacity: 1 }}
                         transition={{ 
-                          duration: 0.5, 
-                          delay: lineIdx * 0.8 + wordIdx * 0.2 + charIdx * 0.05 
+                          duration: 1.0, 
+                          delay: lineIdx * 1.0 + wordIdx * 0.3 + charIdx * 0.1 
                         }}
                       >
                         {char}
@@ -137,7 +159,7 @@ const KaraokeLyrics = ({ currentTime }: { currentTime: number }) => {
   );
 };
 
-const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time: number) => void }) => {
+const LiquidPlayer = ({ src, onTimeUpdate, style = 'minimal' }: { src: string, onTimeUpdate?: (time: number) => void, style?: string }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -192,7 +214,7 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
       audio.removeEventListener('loadedmetadata', setAudioData);
       if (playRef.current) cancelAnimationFrame(playRef.current);
     };
-  }, [isPlaying, src, volume, onTimeUpdate]); // added volume to deps
+  }, [isPlaying, src, volume, onTimeUpdate]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -239,6 +261,20 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
     if (newVol > 0) setIsMuted(false);
   };
 
+  let containerClass = "w-[95%] max-w-[400px] flex gap-3 items-center ";
+  let trackClass = "h-1 w-full bg-white/20 rounded-full overflow-hidden flex items-center relative transition-all";
+  let fillClass = "h-full bg-white rounded-full relative";
+
+  if (style === 'glass') {
+    containerClass += "glass px-6 py-4 rounded-[20px] shadow-2xl";
+    trackClass = "h-2 w-full bg-white/10 rounded-full overflow-hidden flex items-center relative transition-all";
+    fillClass = "h-full bg-white rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.8)]";
+  } else if (style === 'glow') {
+    containerClass += "bg-black/40 border border-[#ff3366]/30 px-6 py-4 rounded-[20px] shadow-[0_0_30px_rgba(255,51,102,0.2)]";
+    trackClass = "h-1 w-full bg-[#ff3366]/20 rounded-full flex items-center relative transition-all";
+    fillClass = "h-full bg-[#ff3366] rounded-full relative shadow-[0_0_15px_rgba(255,51,102,1)]";
+  }
+
   return (
     <motion.div
       initial={{ y: 50, opacity: 0 }}
@@ -246,7 +282,7 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
       transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
       className="w-full flex justify-center mt-6"
     >
-      <div className="w-[95%] max-w-[400px] flex gap-3 items-center">
+      <div className={containerClass}>
         <audio ref={audioRef} src={src} loop preload="metadata" autoPlay />
 
           <div className="flex-1 flex flex-col justify-center h-full relative cursor-pointer pt-2 pb-2 group">
@@ -259,10 +295,10 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             {/* Base track */}
-            <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden flex items-center relative transition-all">
+            <div className={trackClass}>
               {/* Fill track */}
               <div 
-                className="h-full bg-white rounded-full relative" 
+                className={fillClass} 
                 style={{ width: `${progress}%` }} 
               />
             </div>
@@ -283,7 +319,7 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
                 <div 
-                  className="h-full bg-white rounded-full pointer-events-none" 
+                  className={style === 'glow' ? "h-full bg-[#ff3366] rounded-full pointer-events-none shadow-[0_0_10px_rgba(255,51,102,0.8)]" : "h-full bg-white rounded-full pointer-events-none"} 
                   style={{ width: `${isMuted ? 0 : volume * 100}%` }} 
                 />
             </div>
@@ -291,11 +327,16 @@ const LiquidPlayer = ({ src, onTimeUpdate }: { src: string, onTimeUpdate?: (time
       </div>
     </motion.div>
   );
-}
+};
 
 export default function PortfolioPage() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
+  const [appConfig, setAppConfig] = useState<Record<string, string>>({
+    bgEffect: 'blobs',
+    photoEffect: 'none',
+    playerStyle: 'minimal'
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
 
@@ -305,6 +346,9 @@ export default function PortfolioPage() {
       .then((data) => {
         setPhotoUrl(data.photoUrl);
         setMusicUrl(data.musicUrl);
+        if (data.config) {
+          setAppConfig((prev) => ({ ...prev, ...data.config }));
+        }
       })
       .catch((err) => console.error(err))
       .finally(() => setIsLoading(false));
@@ -318,9 +362,26 @@ export default function PortfolioPage() {
     );
   }
 
+  // Determine styles from config
+  const photoContainerClasses = () => {
+    let classes = "w-80 h-80 sm:w-[400px] sm:h-[400px] rounded-2xl overflow-hidden glass relative transition-all duration-1000 ";
+    switch (appConfig.photoEffect) {
+      case 'glow':
+        classes += "shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)]";
+        break;
+      case 'levitate':
+        classes += "shadow-2xl animate-[levitate_6s_ease-in-out_infinite]";
+        break;
+      default:
+        classes += "shadow-2xl";
+        break;
+    }
+    return classes;
+  };
+
   return (
     <div className="relative w-full min-h-[100dvh] flex flex-col items-center justify-between py-12 overflow-hidden bg-[#050505] font-['Helvetica_Neue',Helvetica,Arial,sans-serif] text-white select-none">
-      <BackgroundBlobs />
+      <BackgroundBlobs effect={appConfig.bgEffect} />
 
       <header className="relative z-10 flex flex-col items-center">
         <motion.div 
@@ -329,8 +390,8 @@ export default function PortfolioPage() {
           transition={{ duration: 1, ease: 'easeOut' }}
           className="px-10 py-3 glass rounded-[30px] flex items-center justify-center mt-4 border border-white/5 bg-[#111] shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
         >
-          <span className="text-xl font-bold tracking-[0.25em] leading-none uppercase text-[#9966ff]">
-            VIHT <span className="opacity-50 text-white font-normal ml-2 tracking-widest text-lg">| BLONDA</span>
+          <span className="text-xl sm:text-2xl font-bold tracking-[0.2em] leading-none uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#9966ff] via-[#ff66b2] to-[#9966ff] animate-gradient-x">
+            VIHT <span className="opacity-70 font-normal mx-1">|</span> BLONDA
           </span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/10 to-transparent mt-4" />
@@ -367,7 +428,7 @@ export default function PortfolioPage() {
                 transition={{ duration: 1.5, ease: 'easeOut' }}
                 className="relative flex items-center justify-center w-full"
               >
-                <div className="w-80 h-80 sm:w-[400px] sm:h-[400px] rounded-2xl overflow-hidden glass shadow-2xl relative">
+                <div className={photoContainerClasses()}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
                     src={photoUrl} 
@@ -386,7 +447,7 @@ export default function PortfolioPage() {
           </AnimatePresence>
           
           <AnimatePresence>
-            {musicUrl && <LiquidPlayer src={musicUrl} onTimeUpdate={setCurrentAudioTime} />}
+            {musicUrl && <LiquidPlayer src={musicUrl} onTimeUpdate={setCurrentAudioTime} style={appConfig.playerStyle} />}
           </AnimatePresence>
         </div>
 

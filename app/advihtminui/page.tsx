@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Upload, Music, Image as ImageIcon, CheckCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Upload, Music, Image as ImageIcon, CheckCircle, Loader2, RefreshCw, Settings2, Save } from 'lucide-react';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,7 +10,14 @@ export default function AdminPage() {
   
   const [photoBlobUrl, setPhotoBlobUrl] = useState<string | null>(null);
   const [musicBlobUrl, setMusicBlobUrl] = useState<string | null>(null);
+  const [appConfig, setAppConfig] = useState<Record<string, string>>({
+    bgEffect: 'blobs',
+    photoEffect: 'none',
+    playerStyle: 'minimal'
+  });
+  
   const [isFetching, setIsFetching] = useState(true);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingMusic, setUploadingMusic] = useState(false);
@@ -25,6 +32,9 @@ export default function AdminPage() {
       const data = await res.json();
       setPhotoBlobUrl(data.photoUrl);
       setMusicBlobUrl(data.musicUrl);
+      if (data.config) {
+        setAppConfig((prev) => ({ ...prev, ...data.config }));
+      }
     } catch (err) {
       console.error('Failed to fetch content:', err);
     } finally {
@@ -46,6 +56,33 @@ export default function AdminPage() {
       setError('');
     } else {
       setError('Неверный пароль');
+    }
+  };
+
+  const handleConfigSave = async () => {
+    setIsSavingConfig(true);
+    
+    // Create a JSON blob
+    const file = new Blob([JSON.stringify(appConfig)], { type: 'application/json' });
+    const formData = new FormData();
+    formData.append('file', file, 'config.json');
+    formData.append('type', 'config');
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Upload failed');
+      }
+      alert('Настройки успешно сохранены!');
+    } catch (err) {
+      console.error(err);
+      alert('Ошибка при сохранении настроек');
+    } finally {
+      setIsSavingConfig(false);
     }
   };
 
@@ -181,6 +218,72 @@ export default function AdminPage() {
             className="flex items-center justify-center px-6 py-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors disabled:opacity-50 text-sm font-medium"
           >
             {uploadingMusic ? <Loader2 className="w-5 h-5 animate-spin" /> : (musicBlobUrl ? 'Заменить музыку' : 'Загрузить')}
+          </button>
+        </div>
+      </div>
+
+      {/* Config Settings Card */}
+      <div className="mt-8 bg-[#111] border border-white/10 rounded-3xl p-6 md:p-8 transition-all hover:border-white/20">
+        <div className="flex items-center mb-6">
+          <Settings2 className="w-8 h-8 mr-4 text-white/50" />
+          <h2 className="text-2xl font-medium">Эффекты и плеер</h2>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Background Effects */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-2">Эффекты обоев</label>
+            <select
+              value={appConfig.bgEffect || 'blobs'}
+              onChange={(e) => setAppConfig({ ...appConfig, bgEffect: e.target.value })}
+              className="w-full bg-black/50 border border-white/10 text-white rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-white/30 transition-colors"
+            >
+              <option value="none">Без эффектов (черный цвет)</option>
+              <option value="blobs">Цветные переливы (пятна)</option>
+              <option value="pulse">Пульсация энергии (красная)</option>
+            </select>
+            <p className="text-xs text-white/40 mt-2">Эффекты на заднем плане за контентом.</p>
+          </div>
+
+          {/* Photo Effects */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-2">Эффект фото</label>
+            <select
+              value={appConfig.photoEffect || 'none'}
+              onChange={(e) => setAppConfig({ ...appConfig, photoEffect: e.target.value })}
+              className="w-full bg-black/50 border border-white/10 text-white rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-white/30 transition-colors"
+            >
+              <option value="none">Обычное (Закругленные края)</option>
+              <option value="glow">Светящееся (Glass + Тень)</option>
+              <option value="levitate">Парящее (Анимация движения)</option>
+            </select>
+            <p className="text-xs text-white/40 mt-2">Эффект вокруг главного фото.</p>
+          </div>
+
+          {/* Player Style */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-2">Стиль плеера</label>
+            <select
+              value={appConfig.playerStyle || 'minimal'}
+              onChange={(e) => setAppConfig({ ...appConfig, playerStyle: e.target.value })}
+              className="w-full bg-black/50 border border-white/10 text-white rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-white/30 transition-colors"
+            >
+              <option value="minimal">Минималистичный (Полоски)</option>
+              <option value="glass">Glass (В стеклянном блоке)</option>
+              <option value="glow">Неоновый (Светящийся)</option>
+            </select>
+            <p className="text-xs text-white/40 mt-2">Дизайн полоски прогресса.</p>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-end gap-4">
+          <button
+            onClick={handleConfigSave}
+            disabled={isSavingConfig}
+            className="flex items-center justify-center px-6 py-3 bg-[#9966ff] hover:bg-[#8545ff] text-white rounded-xl transition-colors disabled:opacity-50 text-sm font-medium"
+          >
+            {isSavingConfig ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+            Сохранить настройки
           </button>
         </div>
       </div>
