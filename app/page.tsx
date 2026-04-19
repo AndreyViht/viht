@@ -330,13 +330,33 @@ export default function PortfolioPage() {
           className="px-10 py-3 glass rounded-[30px] flex items-center justify-center mt-4 border border-white/5 bg-[#111] shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
         >
           <span className="text-xl font-bold tracking-[0.25em] leading-none uppercase text-[#9966ff]">
-            VIHT
+            VIHT <span className="opacity-50 text-white font-normal ml-2 tracking-widest text-lg">| BLONDA</span>
           </span>
         </motion.div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/10 to-transparent mt-4" />
       </header>
 
       <main className="relative z-10 flex flex-col w-full h-full items-center justify-center flex-1 mt-8 min-h-[500px] overflow-hidden">
+        
+        {/* Animated Diagonal Text */}
+        <div className="absolute left-[-10%] sm:left-[5%] top-[50%] -translate-y-1/2 -rotate-[50deg] pointer-events-none z-0 mix-blend-screen opacity-60">
+          <motion.div
+            animate={{ 
+              opacity: [0.3, 1, 0.3], 
+              textShadow: [
+                "0 0 10px rgba(255,51,102,0)", 
+                "0 0 30px rgba(255,51,102,0.8)", 
+                "0 0 10px rgba(255,51,102,0)"
+              ],
+              scale: [0.98, 1.02, 0.98]
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            className="text-[#ff3366] text-lg sm:text-2xl font-light tracking-[0.4em] uppercase whitespace-nowrap"
+          >
+            Любовь сильнее чем игра
+          </motion.div>
+        </div>
+
         {/* Center: Image and Player */}
         <div className="flex flex-col items-center gap-8 w-full relative z-20">
           <AnimatePresence>
