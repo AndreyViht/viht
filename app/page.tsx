@@ -332,10 +332,20 @@ const LiquidPlayer = ({ src, onTimeUpdate, style = 'minimal' }: { src: string, o
 export default function PortfolioPage() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
-  const [appConfig, setAppConfig] = useState<Record<string, string>>({
+  const [appConfig, setAppConfig] = useState<any>({
     bgEffect: 'blobs',
     photoEffect: 'none',
-    playerStyle: 'minimal'
+    playerStyle: 'minimal',
+    buttons: [
+      {
+        id: 'btn-1',
+        text: 'SoundCloud',
+        link: 'https://on.soundcloud.com/9gu5TEWqVcPFT36rNF',
+        color: '#ff5500',
+        x: 65,
+        y: 12
+      }
+    ]
   });
   const [isLoading, setIsLoading] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
@@ -347,7 +357,7 @@ export default function PortfolioPage() {
         setPhotoUrl(data.photoUrl);
         setMusicUrl(data.musicUrl);
         if (data.config) {
-          setAppConfig((prev) => ({ ...prev, ...data.config }));
+          setAppConfig((prev: any) => ({ ...prev, ...data.config }));
         }
       })
       .catch((err) => console.error(err))
@@ -399,7 +409,7 @@ export default function PortfolioPage() {
 
       <main className="relative z-10 flex flex-col w-full h-full items-center justify-center flex-1 mt-8 min-h-[500px] overflow-hidden">
         
-        {/* Animated Diagonal Text and Button */}
+        {/* Animated Diagonal Text */}
         <div className="absolute left-[-20%] sm:left-[0%] lg:left-[5%] top-[50%] -translate-y-1/2 -rotate-[50deg] pointer-events-none z-40 flex flex-col items-center gap-6">
           <motion.div
             animate={{ 
@@ -416,25 +426,65 @@ export default function PortfolioPage() {
           >
             Любовь сильнее чем игра
           </motion.div>
-
-          <a
-            href="https://on.soundcloud.com/9gu5TEWqVcPFT36rNF"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pointer-events-auto group relative flex items-center gap-3 px-8 py-3 rounded-full bg-[#ff5500]/10 hover:bg-[#ff5500] border border-[#ff5500]/50 hover:border-[#ff5500] transition-all duration-300 shadow-[0_0_20px_rgba(255,85,0,0.1)] hover:shadow-[0_0_30px_rgba(255,85,0,0.5)] backdrop-blur-sm"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-[#ff5500] group-hover:text-white transition-colors duration-300">
-              <path d="M11.69 14.1l.01-6.1h-.03c-.22 0-.41.17-.41.38v5.72c0 .21.19.38.41.38h.02zm-1.89 0l.01-5.1h-.03c-.22 0-.41.17-.41.38v4.72c0 .21.19.38.41.38h.02zm-1.88 0l.01-4.04h-.03c-.22 0-.41.18-.41.39v3.65c0 .22.18.39.41.39h.02zm-1.89 0l.01-2.92h-.03c-.22 0-.41.18-.41.38v2.54c0 .21.19.38.41.38h.02zm-1.88 0l.01-1.8h-.03c-.21 0-.41.18-.41.39v1.41c0 .22.19.39.41.39h.01zm11.33-1.63a4.99 4.99 0 0 0-4.66-3.08 4.71 4.71 0 0 0-2.82.93v5.6c0 .88.75 1.57 1.63 1.57h5.88a3.13 3.13 0 0 0 3.12-3.13 3.14 3.14 0 0 0-3.15-1.89zM13.58 14.1l.01-7.23h-.03c-.22 0-.41.18-.41.39v6.84c0 .22.19.39.41.39h.02z"/>
-            </svg>
-            <span className="font-bold tracking-[0.2em] uppercase text-[#ff5500] group-hover:text-white transition-colors duration-300 text-sm">
-              SoundCloud
-            </span>
-            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-500 scale-105 group-hover:scale-100" />
-          </a>
         </div>
 
+        {/* Dynamic Custom Buttons */}
+        {appConfig.buttons && appConfig.buttons.map((btn: any) => (
+          <div 
+            key={btn.id}
+            className="absolute z-50 pointer-events-auto"
+            style={{ 
+              left: `${btn.x}%`, 
+              top: `${btn.y}%`, 
+              transform: 'translate(-50%, -50%)' 
+            }}
+          >
+             <style>{`
+                .custom-btn-${btn.id} {
+                  background-color: color-mix(in srgb, ${btn.color} 10%, transparent);
+                  border-color: color-mix(in srgb, ${btn.color} 50%, transparent);
+                  box-shadow: 0 0 20px color-mix(in srgb, ${btn.color} 10%, transparent);
+                  color: ${btn.color};
+                }
+                .custom-btn-${btn.id}:hover {
+                  background-color: ${btn.color};
+                  border-color: ${btn.color};
+                  box-shadow: 0 0 30px color-mix(in srgb, ${btn.color} 50%, transparent);
+                  color: #ffffff;
+                }
+                .custom-btn-${btn.id} svg {
+                  color: ${btn.color};
+                  transition: color 0.3s ease;
+                }
+                .custom-btn-${btn.id}:hover svg {
+                  color: #ffffff;
+                }
+             `}</style>
+             <a
+               href={btn.link}
+               target="_blank"
+               rel="noopener noreferrer"
+               className={`custom-btn-${btn.id} group relative flex items-center gap-3 px-8 py-3 rounded-full border transition-all duration-300 backdrop-blur-sm`}
+             >
+                {btn.text.toLowerCase().includes('soundcloud') ? (
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                    <path d="M11.69 14.1l.01-6.1h-.03c-.22 0-.41.17-.41.38v5.72c0 .21.19.38.41.38h.02zm-1.89 0l.01-5.1h-.03c-.22 0-.41.17-.41.38v4.72c0 .21.19.38.41.38h.02zm-1.88 0l.01-4.04h-.03c-.22 0-.41.18-.41.39v3.65c0 .22.18.39.41.39h.02zm-1.89 0l.01-2.92h-.03c-.22 0-.41.18-.41.38v2.54c0 .21.19.38.41.38h.02zm-1.88 0l.01-1.8h-.03c-.21 0-.41.18-.41.39v1.41c0 .22.19.39.41.39h.01zm11.33-1.63a4.99 4.99 0 0 0-4.66-3.08 4.71 4.71 0 0 0-2.82.93v5.6c0 .88.75 1.57 1.63 1.57h5.88a3.13 3.13 0 0 0 3.12-3.13 3.14 3.14 0 0 0-3.15-1.89zM13.58 14.1l.01-7.23h-.03c-.22 0-.41.18-.41.39v6.84c0 .22.19.39.41.39h.02z"/>
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                )}
+                <span className="font-bold tracking-[0.2em] uppercase transition-colors duration-300 text-sm">
+                  {btn.text}
+                </span>
+                <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-500 scale-105 group-hover:scale-100" />
+             </a>
+          </div>
+        ))}
+
         {/* Center: Image and Player */}
-        <div className="flex flex-col items-center gap-8 w-full relative z-20">
+        <div className="flex flex-col items-center gap-8 w-full relative z-20 mt-16 sm:mt-0">
           <AnimatePresence>
             {photoUrl && (
               <motion.div

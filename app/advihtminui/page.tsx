@@ -10,10 +10,11 @@ export default function AdminPage() {
   
   const [photoBlobUrl, setPhotoBlobUrl] = useState<string | null>(null);
   const [musicBlobUrl, setMusicBlobUrl] = useState<string | null>(null);
-  const [appConfig, setAppConfig] = useState<Record<string, string>>({
+  const [appConfig, setAppConfig] = useState<any>({
     bgEffect: 'blobs',
     photoEffect: 'none',
-    playerStyle: 'minimal'
+    playerStyle: 'minimal',
+    buttons: []
   });
   
   const [isFetching, setIsFetching] = useState(true);
@@ -33,7 +34,7 @@ export default function AdminPage() {
       setPhotoBlobUrl(data.photoUrl);
       setMusicBlobUrl(data.musicUrl);
       if (data.config) {
-        setAppConfig((prev) => ({ ...prev, ...data.config }));
+        setAppConfig((prev: any) => ({ ...prev, ...data.config }));
       }
     } catch (err) {
       console.error('Failed to fetch content:', err);
@@ -274,6 +275,125 @@ export default function AdminPage() {
             </select>
             <p className="text-xs text-white/40 mt-2">Дизайн полоски прогресса.</p>
           </div>
+        </div>
+
+        {/* Buttons List and Editor */}
+        <div className="mt-8 pt-8 border-t border-white/10">
+          <h3 className="text-lg font-medium mb-4">Настройка кнопок-ссылок</h3>
+          {appConfig.buttons && appConfig.buttons.map((btn: any, index: number) => (
+            <div key={btn.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4 bg-white/5 p-4 rounded-xl relative">
+              <div className="col-span-1">
+                <label className="block text-xs font-medium text-white/70 mb-1">Текст</label>
+                <input
+                  type="text"
+                  value={btn.text}
+                  onChange={(e) => {
+                    const newButtons = [...appConfig.buttons];
+                    newButtons[index].text = e.target.value;
+                    setAppConfig({...appConfig, buttons: newButtons});
+                  }}
+                  className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs font-medium text-white/70 mb-1">Ссылка</label>
+                <input
+                  type="text"
+                  value={btn.link}
+                  onChange={(e) => {
+                    const newButtons = [...appConfig.buttons];
+                    newButtons[index].link = e.target.value;
+                    setAppConfig({...appConfig, buttons: newButtons});
+                  }}
+                  className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-xs font-medium text-white/70 mb-1">Цвет HEX</label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={btn.color}
+                    onChange={(e) => {
+                      const newButtons = [...appConfig.buttons];
+                      newButtons[index].color = e.target.value;
+                      setAppConfig({...appConfig, buttons: newButtons});
+                    }}
+                    className="w-10 h-10 rounded cursor-pointer bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={btn.color}
+                    onChange={(e) => {
+                      const newButtons = [...appConfig.buttons];
+                      newButtons[index].color = e.target.value;
+                      setAppConfig({...appConfig, buttons: newButtons});
+                    }}
+                    className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-2 py-2 text-xs"
+                  />
+                </div>
+              </div>
+              <div className="col-span-1 flex gap-2">
+                <div className="w-1/2">
+                  <label className="block text-xs font-medium text-white/70 mb-1">X (%)</label>
+                  <input
+                    type="number"
+                    value={btn.x}
+                    min="0" max="100"
+                    onChange={(e) => {
+                      const newButtons = [...appConfig.buttons];
+                      newButtons[index].x = Number(e.target.value);
+                      setAppConfig({...appConfig, buttons: newButtons});
+                    }}
+                    className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label className="block text-xs font-medium text-white/70 mb-1">Y (%)</label>
+                  <input
+                    type="number"
+                    value={btn.y}
+                    min="0" max="100"
+                    onChange={(e) => {
+                      const newButtons = [...appConfig.buttons];
+                      newButtons[index].y = Number(e.target.value);
+                      setAppConfig({...appConfig, buttons: newButtons});
+                    }}
+                    className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div className="col-span-1 text-right">
+                <button
+                  onClick={() => {
+                    const newButtons = appConfig.buttons.filter((_: any, i: number) => i !== index);
+                    setAppConfig({...appConfig, buttons: newButtons});
+                  }}
+                  className="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded-lg text-sm transition-colors w-full"
+                >
+                  Удалить
+                </button>
+              </div>
+            </div>
+          ))}
+          
+          <button
+            onClick={() => {
+              const newButtons = appConfig.buttons ? [...appConfig.buttons] : [];
+              newButtons.push({
+                id: `btn-${Date.now()}`,
+                text: 'Новая кнопка',
+                link: 'https://',
+                color: '#ffffff',
+                x: 50,
+                y: 50
+              });
+              setAppConfig({...appConfig, buttons: newButtons});
+            }}
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors mt-2"
+          >
+            + Добавить кнопку
+          </button>
         </div>
 
         <div className="mt-8 flex justify-end gap-4">
